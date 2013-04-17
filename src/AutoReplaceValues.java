@@ -1,96 +1,117 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
 
 public class AutoReplaceValues {
 
+
+	static String archiveNS  = "demoArchive";
+	static String archiveURL = "http://demoarchive.demo/";
+	static String archiveEndpoint = "http://localhost:8090/openrdf-sesame/repositories/koenkerzeileis_v1";
 	
-	public static void main(String[] args) {
+	
 
+	public static void autoReplace(File inFile, boolean skipHeader) throws IOException {
 		
-		try {
-			String workingDir = "C:\\data\\workspace-juno\\ddocks\\samples\\koenkerzeileis09";
-			
-			File fileIn  = new File(workingDir, "rk.raw");
-			File fileOut = new File(workingDir, "rk.raw.ddocks");
-			
-			List<String> replaceEverythingBut = Arrays.asList("id,neq,nreg,nobs,author,journal,year,page,subject,collection".split(","));
-			
-			BufferedReader br = new BufferedReader(new FileReader(fileIn));
-			PrintStream ps = new PrintStream(fileOut);
-			
-			String line;
-			Pattern regex = Pattern.compile("\\b\\S+\\b");
-			
-			String tokenOpen  = "<";
-			String tokenClose = ">";
-			
-			while ((line=br.readLine())!=null) {
-				
-				Matcher m = regex.matcher(line);
-				int index = 0;
-				String lineOut = "";
-				
-				while (m.find()) {
-					
-					String value = m.group();
-					
-					if (replaceEverythingBut.contains(value)) {
-						System.out.println("Skipping value: "+value);
-						continue;
-					}
-					
-					System.out.println("Found value: "+value);
-					
-					String id = requestIDfor(value);
-					
-//					line = line.substring(index, m.start()) + tokenOpen + id + tokenClose + line.substring(m.end());
-//					m = regex.matcher(line);
+		String tokenOpen  = "<";
+		String tokenClose = ">";
 
-					lineOut += line.substring(index, m.start()) + tokenOpen + id + tokenClose;
-					index = m.end();
+		BufferedReader br = new BufferedReader(new FileReader(inFile));
+		
+		File outFileTemplate = new File(inFile.getAbsoluteFile().getParent(), inFile.getName() + ".ddocks");
+		File outFileTriples  = new File(inFile.getAbsoluteFile().getParent(), inFile.getName() + ".ddocks.nt");
+		
+		PrintStream psDataTemplate = new PrintStream(outFileTemplate);
+		PrintStream psDataTriples  = new PrintStream(outFileTriples);
 
-				}
+		// generate header
+		String header = String.format(
+				"<?ddocks version=\"0.1\" encoding=\"UTF-8\"?>\n" + 
+				"\n" + 
+				"# use '#' for comments\n" + 
+				"\n" + 
+				"\n" + 
+				"@tokens	%s\t%s\n" +
+				"\n" +
+				"@namespace	%s\t%s\t%s\n" +
+				"\n" + 
+				"<end-ddocks-header>"
+				, tokenOpen, tokenClose, archiveNS, archiveURL, archiveEndpoint);
+		
+		psDataTemplate.println(header);
+		
+
+		String line;
+
+		if (skipHeader) {
+			// skip header row
+			psDataTemplate.println(br.readLine());
+		}
+		
+
+		// regex to identify values
+		Pattern regex = Pattern.compile("\\b[\\p{Punct}\\S]+\\b");
+		
+		
+		while ((line=br.readLine())!=null) {
+			
+			Matcher m = regex.matcher(line);
+			int index = 0;
+			String lineOutTemplate = "";
+			
+			while (m.find()) {
 				
-				lineOut += line.substring(index);
+				String value = m.group();
 				
-				ps.println(lineOut);
+				System.out.println("Found value: "+value);
+				
+				String id = requestIDfor(value);
+				
+//				line = line.substring(index, m.start()) + tokenOpen + id + tokenClose + line.substring(m.end());
+//				m = regex.matcher(line);
+
+				// good for debugging:
+//				lineOut += line.substring(index, m.start()) + value+ tokenOpen + id + tokenClose;
+				lineOutTemplate += line.substring(index, m.start()) + tokenOpen + archiveNS + ":" + id + tokenClose;
+				
+				index = m.end();
+
+				
+				
+				// produce triples, so that every single value is associated with an ID
+				String uri = "<" + archiveURL + id + ">";
+				psDataTriples.println(uri + "\t<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>\t<http://lod.gesis.org/sweavelod/DataReference> .");
+				psDataTriples.println(uri + "\t<http://www.w3.org/1999/02/22-rdf-syntax-ns#value>\t\""+value+"\" .");
+				
+				
+				
 			}
 			
-			
-			ps.close();
-			br.close();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+			lineOutTemplate += line.substring(index);
+			psDataTemplate.println(lineOutTemplate);
 		}
 		
 		
-		
+		psDataTemplate.close();
+		br.close();
 		
 	}
-
 	
-	static int counter = 0;
+	
+	static long counter = System.currentTimeMillis();
 
 	public static String requestIDfor(String value) {
 		
-//		return value;
-		
-		
-		String id = "valueStore:" + DigestUtils.sha512Hex(""+counter+value);
+		String tmp = ""+counter;
+		String id  = Base64.encodeBase64URLSafeString(tmp.getBytes());
 		
 		counter++;
 		return id;
