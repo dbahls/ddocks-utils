@@ -35,15 +35,12 @@ public class AutoReplaceValues {
 		// generate header
 		String header = String.format(
 				"<?ddocks version=\"0.1\" encoding=\"UTF-8\"?>\n" + 
+				"<ddocks-header>\n" + 
 				"\n" + 
-				"# use '#' for comments\n" + 
+				"@tokens	<	>\n" + 
+				"@namespace	demoArchive	http://demoarchive.demo/	http://localhost:8090/openrdf-sesame/repositories/koenkerzeileis_v1\n" + 
 				"\n" + 
-				"\n" + 
-				"@tokens	%s\t%s\n" +
-				"\n" +
-				"@namespace	%s\t%s\t%s\n" +
-				"\n" + 
-				"<end-ddocks-header>"
+				"</ddocks-header>"
 				, tokenOpen, tokenClose, archiveNS, archiveURL, archiveEndpoint);
 		
 		psDataTemplate.println(header);
@@ -106,7 +103,7 @@ public class AutoReplaceValues {
 	}
 	
 	
-	static long counter = System.currentTimeMillis();
+	static long counter = 0;
 
 	public static String requestIDfor(String value) {
 		
