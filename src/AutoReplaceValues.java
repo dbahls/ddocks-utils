@@ -14,7 +14,7 @@ public class AutoReplaceValues {
 
 
 	static String archiveNS  = "demoArchive";
-	static String archiveURL = "http://demoarchive.demo/";
+	static String archiveURL = "http://demoarchive.demo/data/";
 	static String archiveEndpoint = "http://localhost:8090/openrdf-sesame/repositories/koenkerzeileis_v1";
 	
 	
@@ -37,8 +37,8 @@ public class AutoReplaceValues {
 				"<?ddocks version=\"0.1\" encoding=\"UTF-8\"?>\n" + 
 				"<ddocks-header>\n" + 
 				"\n" + 
-				"@tokens	<	>\n" + 
-				"@namespace	demoArchive	http://demoarchive.demo/	http://localhost:8090/openrdf-sesame/repositories/koenkerzeileis_v1\n" + 
+				"@tokens	%s	%s\n" + 
+				"@namespace	%s	%s	%s\n" + 
 				"\n" + 
 				"</ddocks-header>"
 				, tokenOpen, tokenClose, archiveNS, archiveURL, archiveEndpoint);
