@@ -55,7 +55,7 @@ public class AutoReplaceValues {
 		
 
 		// regex to identify values
-		Pattern regex = Pattern.compile("\\b[\\p{Punct}\\S]+\\b");
+		Pattern regex = Pattern.compile("[\\p{Punct}\\S]+");
 		
 		
 		while ((line=br.readLine())!=null) {
