@@ -9,20 +9,19 @@ public class GenerateTemplates_KoenkerZeileis09 {
 	public static void main(String[] args) {
 		
 		try {
-			String workingDir = "C:\\data\\workspace-juno\\ddocks\\samples\\koenkerzeileis09";
+			File baseDir   = new File("../paper-restore-model/");
+			File outputDir = new File(baseDir, "data-templates/");
 
-//			File genDir = new File(workingDir, "generated");
-//			genDir.mkdir();
-			
 			
 			// process raw file
-			File inFile = new File(workingDir, "rk.raw");
-			AutoReplaceValues.autoReplace(inFile, false);
+			File inFile = new File(baseDir, "koenker-zeileis-09/rk.raw");
+			AutoReplaceValues.autoReplace(inFile, outputDir, false);
 
+			
 		
 			// process CSV file
-			inFile = new File(workingDir, "data.dj");
-			AutoReplaceValues.autoReplace(inFile, true);
+			inFile = new File(baseDir, "koenker-zeileis-09/data.dj");
+			AutoReplaceValues.autoReplace(inFile, outputDir, true);
 			
 			
 			System.out.println("Done");

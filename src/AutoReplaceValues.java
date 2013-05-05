@@ -19,15 +19,15 @@ public class AutoReplaceValues {
 	
 	
 
-	public static void autoReplace(File inFile, boolean skipHeader) throws IOException {
+	public static void autoReplace(File inFile, File outputDir, boolean skipHeader) throws IOException {
 		
 		String tokenOpen  = "<";
 		String tokenClose = ">";
 
 		BufferedReader br = new BufferedReader(new FileReader(inFile));
 		
-		File outFileTemplate = new File(inFile.getAbsoluteFile().getParent(), inFile.getName() + ".ddocks");
-		File outFileTriples  = new File(inFile.getAbsoluteFile().getParent(), inFile.getName() + ".ddocks.nt");
+		File outFileTemplate = new File(outputDir, inFile.getName() + ".ddocks");
+		File outFileTriples  = new File(outputDir, inFile.getName() + ".ddocks.nt");
 		
 		PrintStream psDataTemplate = new PrintStream(outFileTemplate);
 		PrintStream psDataTriples  = new PrintStream(outFileTriples);
