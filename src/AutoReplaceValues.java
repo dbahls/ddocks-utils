@@ -7,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 
 
 public class AutoReplaceValues {
@@ -15,8 +14,8 @@ public class AutoReplaceValues {
 
 	static String archiveNS  = "demoArchive";
 	static String archiveURL = "http://demoarchive.demo/data/";
-	static String archiveEndpoint = "http://localhost:8090/openrdf-sesame/repositories/koenkerzeileis_v1";
-	
+//	static String archiveEndpoint = "http://localhost:8090/openrdf-sesame/repositories/koenkerzeileis_v1";
+	static String archiveEndpoint = "http://lod.gesis.org/sweavelod/sparql";
 	
 
 	public static void autoReplace(File inFile, File outputDir, boolean skipHeader) throws IOException {
@@ -53,7 +52,6 @@ public class AutoReplaceValues {
 			psDataTemplate.println(br.readLine());
 		}
 		
-
 		// regex to identify values
 		Pattern regex = Pattern.compile("[\\p{Punct}\\S]+");
 		
@@ -97,6 +95,7 @@ public class AutoReplaceValues {
 		}
 		
 		
+		psDataTriples.close();
 		psDataTemplate.close();
 		br.close();
 		
